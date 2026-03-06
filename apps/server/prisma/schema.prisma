@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+  boards       Board[]
+}
+
+model Board {
+  id         String      @id @default(cuid())
+  name       String
+  shareId    String      @unique @default(cuid())
+  ownerId    String
+  owner      User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  state      Json?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  files      FileAsset[]
+}
+
+model FileAsset {
+  id         String   @id @default(cuid())
+  boardId    String
+  board      Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  original   String
+  mimeType   String
+  storageKey String
+  size       Int
+  createdAt  DateTime @default(now())
+}
